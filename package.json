@@ -1,0 +1,28 @@
+{
+  "name": "telegram-news",
+  "version": "1.0.0",
+  "description": "Small project that check update on your sites ",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ilbasso-dot/telegram-news.git"
+  },
+  "author": "Ilbasso-dot",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ilbasso-dot/telegram-news/issues"
+  },
+  "homepage": "https://github.com/Ilbasso-dot/telegram-news#readme",
+  "dependencies": {
+    "axios": "^1.2.2",
+    "cheerio": "^1.0.0-rc.12",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.3",
+    "fs": "^0.0.1-security",
+    "node-telegram-bot-api": "^0.60.0"
+  }
+}
