@@ -23,26 +23,25 @@ bot.onText(/\/start/, (msg, match) => {
 })
 
 async function setup() {
-    // creo un oggetto contenente i vari hash
+    // create object with hash (empty)
     let obj = { hash: [] }
     for (let i = 0; i < sites.length; i++) {
         let tmphash = await scrapeData(sites[i]);
         obj.hash.push(tmphash);
     }
-    // scrivo nel database gli hash
+    // write in database
     writeData(obj);
 
     /* 
-        Per scoprire il proprio chat id (o quello del gruppo)
-        basta decommentare le due righe sotto 
+        To find your chat id decomment the following lines and send /start
     */
     // GroupID = msg.chat.id;
     // bot.sendMessage(GroupID, "Il tuo id è: "+GroupID);
-    bot.sendMessage(GroupID, "Bot online");
+    bot.sendMessage(GroupID, "Bot initializated");
 }
 
-function scrivi(stringa){
-    bot.sendMessage(GroupID, stringa);
+function scrivi(string){
+    bot.sendMessage(GroupID, string);
 }
 
 
@@ -50,33 +49,30 @@ function scrivi(stringa){
 
 /*    SCRAPING     */
 
-// funzione di scraping vera e propria
+// scraping function
 async function scrapeData(url) {
     try {
-        // prendo l'html del sito e lo "carico" in una variabile per i prossimi passaggi
-        // NB: guardare
+        // retrive html data from the sites
         let { data } = await axios.get(url);
         const $ = cheerio.load(data)
         let lista = "";
-        // cerca l'elemento dell'html chiamato "menu" e agisce su ogni elemento della lista
+        // find the element called "menu" and add each element in a list to compute the hash
         $('.menu').find('li').each((i, elem) => {
             try {
-                // aggiungo sia il titolo che la scritta per ogni punto della lista 
-                // NB: si possono aggiungere altre stringhe di altri elementi per tenerli sott'occhio
+                // add the element that you want to check
+                // in this case the title, the description and the link
+                // but you can add more 
                 lista += $(elem).find('h4').text();
                 lista += $(elem).find('p').text();
                 lista += $(elem).find('a').attr('href');
-                // ovviamente si possono anche togliere se non si è interessati a cambiamenti poco
-                // significativi come il cambiamento del nome di un link (lista += $(elem).find('h4').text();)
             }
             catch (err) {
-                // togliere se si vogliono non gestire gli errori
                 console.log(err);
             }
 
         });
 
-        // creazione hash
+        // create hash for store in an easy way the data (less space than all the html)
         let hash = crypto.createHash('sha256').update(lista).digest('hex');
         return hash;
 
@@ -111,9 +107,9 @@ function writeData(obj) {
 
 /*------------------------------------------------------------------*/
 
-/*    ESECUZIONE     */
+/*    EXECUTION     */
 
-// esegue le azioni ciclicamente con un certo intervallo in ms
+// this funcion check every x seconds if there are updates
 setInterval(async ()=>{
     if(!fs.existsSync("db.json")){
         writeData({hash:[]});
@@ -130,15 +126,14 @@ setInterval(async ()=>{
 
     for(let i in sites){
         let hash = await scrapeData(sites[i]);
-        // console.log(hash);
         if(hash != hash_db[i]){
             obj.hash[i]=hash;
             scrivi("update "+sites[i]);
             someUpdate = true;
         }
     }
-    // se ci sono update aggiorna il database
+    // only if there are updates write in the database
     if (someUpdate){
         writeData(obj)
     }
-},5_000); // guarda per gli aggiornamenti ogni 500.000 ms
+},5_000);
